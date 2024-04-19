@@ -103,5 +103,17 @@ namespace DXApplication3
             RefreshData();
 
         }
+
+        private void gridView1_FocusedRowChanged(object sender, DevExpress.XtraGrid.Views.Base.FocusedRowChangedEventArgs e)
+        {
+            var r = gridView1.GetFocusedRow() as Models.Lead;
+            if (r != null)
+            {
+                var dbContext = new Models.BusinessManagerContext();
+                var s = dbContext.LeadEvents.Where(x => x.Lid == r.Id).ToList();
+                Debug.Print(s.Count.ToString());
+
+            }
+        }
     }
 }

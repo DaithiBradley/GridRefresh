@@ -135,177 +135,190 @@ namespace DXApplication3
     public class RefreshHelper
     {
         [Serializable]
-        public struct RowInfo
+        private struct RowInfo
         {
             public object Id;
             public int Level;
         };
 
-        private GridView view;
-        private string keyFieldName;
-        private ArrayList saveExpList;
-        private ArrayList saveSelList;
-        private ArrayList saveMasterRowsList;
-        private int visibleRowIndex = -1;
+        private ArrayList _saveExpList;
+        private ArrayList _saveSelList;
+        private ArrayList _saveMasterRowsList;
+        private int _visibleRowIndex = -1;
+        private readonly GridView _view;
+        private readonly string _keyFieldName;
 
+        /// <summary>
+        /// NEW NEW NEW
+        /// </summary>
         public RefreshHelper(GridView view, string keyFieldName)
         {
-            this.view = view;
-            this.keyFieldName = keyFieldName;
+            System.Diagnostics.Debug.Print(Guid.NewGuid().ToString() + " " + view.Name);
+            _view = view;
+            _keyFieldName = keyFieldName;
+            var found = _view.Columns.ColumnByFieldName(keyFieldName);
+
+            if (found is null)
+            {
+                // Logging.LogEvent("Grid Column not found", LogLevel.Warn);
+            }
         }
 
-        public ArrayList SaveExpList
+        private ArrayList SaveExpList
         {
-            get { return saveExpList ??= []; }
+            get { return _saveExpList ??= []; }
         }
 
-        public ArrayList SaveSelList
+        private ArrayList SaveSelList
         {
-            get { return saveSelList ??= []; }
+            get { return _saveSelList ??= []; }
         }
 
-        public ArrayList SaveMasterRowsList
+        private ArrayList SaveMasterRowsList
         {
-            get { return saveMasterRowsList ??= []; }
+            get { return _saveMasterRowsList ??= []; }
         }
 
-        protected int FindParentRowHandle(RowInfo rowInfo, int rowHandle)
+        private int FindParentRowHandle(RowInfo rowInfo, int rowHandle)
         {
-            var result = view.GetParentRowHandle(rowHandle);
-            while (view.GetRowLevel(result) != rowInfo.Level && view.IsValidRowHandle(result))
-                result = view.GetParentRowHandle(result);
+            var result = _view.GetParentRowHandle(rowHandle);
+            while (_view.GetRowLevel(result) != rowInfo.Level && _view.IsValidRowHandle(result))
+                result = _view.GetParentRowHandle(result);
             return result;
         }
 
-        protected void ExpandRowByRowInfo(RowInfo rowInfo)
+        private void ExpandRowByRowInfo(RowInfo rowInfo)
         {
-            var dataRowHandle = view.LocateByValue(0, view.Columns[keyFieldName], rowInfo.Id);
+            var dataRowHandle = _view.LocateByValue(0, _view.Columns[_keyFieldName], rowInfo.Id);
             if (dataRowHandle == GridControl.InvalidRowHandle) return;
             var parentRowHandle = FindParentRowHandle(rowInfo, dataRowHandle);
-            view.SetRowExpanded(parentRowHandle, true, false);
+            _view.SetRowExpanded(parentRowHandle, true, false);
         }
 
-        protected int GetRowHandleToSelect(RowInfo rowInfo)
+        private int GetRowHandleToSelect(RowInfo rowInfo)
         {
-            var dataRowHandle = view.LocateByValue(0, view.Columns[keyFieldName], rowInfo.Id);
+            var dataRowHandle = _view.LocateByValue(0, _view.Columns[_keyFieldName], rowInfo.Id);
             if (dataRowHandle == GridControl.InvalidRowHandle) return dataRowHandle;
-            return view.GetRowLevel(dataRowHandle) != rowInfo.Level ? FindParentRowHandle(rowInfo, dataRowHandle) : dataRowHandle;
+            return _view.GetRowLevel(dataRowHandle) != rowInfo.Level
+                ? FindParentRowHandle(rowInfo, dataRowHandle)
+                : dataRowHandle;
         }
 
-        protected void SelectRowByRowInfo(RowInfo rowInfo, bool isFocused)
+        private void SelectRowByRowInfo(RowInfo rowInfo, bool isFocused)
         {
             if (isFocused)
-                view.FocusedRowHandle = GetRowHandleToSelect(rowInfo);
+                _view.FocusedRowHandle = GetRowHandleToSelect(rowInfo);
             else
-                view.SelectRow(GetRowHandleToSelect(rowInfo));
+                _view.SelectRow(GetRowHandleToSelect(rowInfo));
         }
 
-        public void SaveSelectionViewInfo(ArrayList list)
+        private void SaveSelectionViewInfo(ArrayList list)
         {
             list.Clear();
-            var column = view.Columns[keyFieldName];
+            var column = _view.Columns[_keyFieldName];
             RowInfo rowInfo;
-            var selectionArray = view.GetSelectedRows();
-            if (selectionArray != null)  // otherwise we have a single focused but not selected row
+            var selectionArray = _view.GetSelectedRows();
+            if (selectionArray != null) // otherwise we have a single focused but not selected row
                 foreach (var t in selectionArray)
                 {
                     var dataRowHandle = t;
-                    rowInfo.Level = view.GetRowLevel(dataRowHandle);
+                    rowInfo.Level = _view.GetRowLevel(dataRowHandle);
                     if (dataRowHandle < 0) // group row
-                        dataRowHandle = view.GetDataRowHandleByGroupRowHandle(dataRowHandle);
-                    rowInfo.Id = view.GetRowCellValue(dataRowHandle, column);
+                        dataRowHandle = _view.GetDataRowHandleByGroupRowHandle(dataRowHandle);
+                    rowInfo.Id = _view.GetRowCellValue(dataRowHandle, column);
                     list.Add(rowInfo);
                 }
-            rowInfo.Id = view.GetRowCellValue(view.FocusedRowHandle, column);
-            rowInfo.Level = view.GetRowLevel(view.FocusedRowHandle);
+
+            rowInfo.Id = _view.GetRowCellValue(_view.FocusedRowHandle, column);
+            rowInfo.Level = _view.GetRowLevel(_view.FocusedRowHandle);
             list.Add(rowInfo);
         }
 
-        public void SaveExpansionViewInfo(ArrayList list)
+        private void SaveExpansionViewInfo(ArrayList list)
         {
-            if (view.GroupedColumns.Count == 0) return;
+            if (_view.GroupedColumns.Count == 0) return;
             list.Clear();
-            var column = view.Columns[keyFieldName];
+            var column = _view.Columns[_keyFieldName];
             for (var i = -1; i > int.MinValue; i--)
             {
-                if (!view.IsValidRowHandle(i)) break;
-                if (!view.GetRowExpanded(i)) continue;
+                if (!_view.IsValidRowHandle(i)) break;
+                if (!_view.GetRowExpanded(i)) continue;
                 RowInfo rowInfo;
-                var dataRowHandle = view.GetDataRowHandleByGroupRowHandle(i);
-                rowInfo.Id = view.GetRowCellValue(dataRowHandle, column);
-                rowInfo.Level = view.GetRowLevel(i);
+                var dataRowHandle = _view.GetDataRowHandleByGroupRowHandle(i);
+                rowInfo.Id = _view.GetRowCellValue(dataRowHandle, column);
+                rowInfo.Level = _view.GetRowLevel(i);
                 list.Add(rowInfo);
             }
         }
 
-        public void SaveExpandedMasterRows(ArrayList list)
+        private void SaveExpandedMasterRows(ArrayList list)
         {
-            if (view.GridControl.Views.Count == 1) return;
+            if (_view.GridControl.Views.Count == 1) return;
             list.Clear();
-            var column = view.Columns[keyFieldName];
-            for (var i = 0; i < view.DataRowCount; i++)
-                if (view.GetMasterRowExpanded(i))
-                    list.Add(view.GetRowCellValue(i, column));
+            var column = _view.Columns[_keyFieldName];
+            for (var i = 0; i < _view.DataRowCount; i++)
+                if (_view.GetMasterRowExpanded(i))
+                    list.Add(_view.GetRowCellValue(i, column));
         }
 
-        public void SaveVisibleIndex()
+        private void SaveVisibleIndex()
         {
-            visibleRowIndex = view.GetVisibleIndex(view.FocusedRowHandle) - view.TopRowIndex;
+            _visibleRowIndex = _view.GetVisibleIndex(_view.FocusedRowHandle) - _view.TopRowIndex;
         }
 
-        public void LoadVisibleIndex()
+        private void LoadVisibleIndex()
         {
-            view.MakeRowVisible(view.FocusedRowHandle, true);
-            view.TopRowIndex = view.GetVisibleIndex(view.FocusedRowHandle) - visibleRowIndex;
+            _view.MakeRowVisible(_view.FocusedRowHandle, true);
+            _view.TopRowIndex = _view.GetVisibleIndex(_view.FocusedRowHandle) - _visibleRowIndex;
         }
 
-        public void LoadSelectionViewInfo(ArrayList list)
+        private void LoadSelectionViewInfo(ArrayList list)
         {
-            view.BeginSelection();
+            _view.BeginSelection();
             try
             {
-                view.ClearSelection();
+                _view.ClearSelection();
                 for (var i = 0; i < list.Count; i++)
                     SelectRowByRowInfo((RowInfo)list[i], i == list.Count - 1);
             }
             finally
             {
-                view.EndSelection();
+                _view.EndSelection();
             }
         }
 
-        public void LoadExpansionViewInfo(ArrayList list)
+        private void LoadExpansionViewInfo(ArrayList list)
         {
-            if (view.GroupedColumns.Count == 0) return;
-            view.BeginUpdate();
+            if (_view.GroupedColumns.Count == 0) return;
+            _view.BeginUpdate();
             try
             {
-                view.CollapseAllGroups();
+                _view.CollapseAllGroups();
                 foreach (RowInfo info in list)
                     ExpandRowByRowInfo(info);
             }
             finally
             {
-                view.EndUpdate();
+                _view.EndUpdate();
             }
         }
 
-        public void LoadExpandedMasterRows(ArrayList list)
+        private void LoadExpandedMasterRows(ArrayList list)
         {
-            view.BeginUpdate();
+            _view.BeginUpdate();
             try
             {
-                view.CollapseAllDetails();
-                var column = view.Columns[keyFieldName];
+                _view.CollapseAllDetails();
+                var column = _view.Columns[_keyFieldName];
                 foreach (var t in list)
                 {
-                    var rowHandle = view.LocateByValue(0, column, t);
-                    view.SetMasterRowExpanded(rowHandle, true);
+                    var rowHandle = _view.LocateByValue(0, column, t);
+                    _view.SetMasterRowExpanded(rowHandle, true);
                 }
             }
             finally
             {
-                view.EndUpdate();
+                _view.EndUpdate();
             }
         }
 
@@ -323,6 +336,9 @@ namespace DXApplication3
             LoadExpansionViewInfo(SaveExpList);
             LoadSelectionViewInfo(SaveSelList);
             LoadVisibleIndex();
+            _saveSelList = null;
+            _saveExpList = null;
+            _saveMasterRowsList = null;
         }
     }
 }

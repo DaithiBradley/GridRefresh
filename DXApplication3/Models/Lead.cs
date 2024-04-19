@@ -2,66 +2,98 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace DXApplication3.Models;
 
+[Index("Aname", "Org", "Email", "Phone", Name = "OtherIndex")]
+[MySqlCharSet("utf8mb3")]
+[MySqlCollation("utf8mb3_general_ci")]
 public partial class Lead
 {
+    [Key]
+    [Column("ID")]
     public int Id { get; set; }
 
+    [Column("AName")]
+    [MySqlCharSet("latin1")]
+    [MySqlCollation("latin1_swedish_ci")]
     public string Aname { get; set; }
 
+    [StringLength(255)]
     public string Type { get; set; }
 
+    [Column(TypeName = "datetime")]
     public DateTime? Due { get; set; }
 
+    [Column(TypeName = "timestamp")]
     public DateTime TimeStamp { get; set; }
 
     public int? Complete { get; set; }
 
+    [Column("ContactID")]
     public int? ContactId { get; set; }
 
     public int? AssignedTo { get; set; }
 
     public int? Priority { get; set; }
 
+    [Column(TypeName = "datetime")]
     public DateTime? Created { get; set; }
 
+    [StringLength(255)]
     public string CreatedBy { get; set; }
 
     public string Memo { get; set; }
 
+    [Precision(10, 2)]
     public decimal? Value { get; set; }
 
+    [StringLength(45)]
     public string Stage { get; set; }
 
     public int Exp { get; set; }
 
+    [StringLength(245)]
     public string Phone { get; set; }
 
+    [StringLength(245)]
     public string Email { get; set; }
 
+    [StringLength(245)]
     public string Org { get; set; }
 
+    [StringLength(245)]
     public string Ref { get; set; }
 
     public string EmailMemo { get; set; }
 
+    [StringLength(255)]
     public string Source { get; set; }
 
     public bool? LeadSeen { get; set; }
 
+    [StringLength(245)]
     public string Activitiescol { get; set; }
 
+    [Required]
+    [StringLength(45)]
     public string Locale { get; set; }
 
+    [Column("PO")]
+    [StringLength(245)]
     public string Po { get; set; }
 
+    [Precision(10, 2)]
     public decimal? Profit { get; set; }
 
+    [Column(TypeName = "datetime")]
     public DateTime LeadArchieveDate { get; set; }
     [NotMapped]
     public bool Archieved => LeadArchieveDate < DateTime.Now.AddMonths(-18);
-    public List<LeadEvent> LeadEvents { get; set; }
+    [NotMapped]
+    public virtual List<LeadEvent> LeadEvents { get; set; }
+
 }

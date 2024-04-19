@@ -36,76 +36,20 @@ public partial class BusinessManagerContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity
-                .HasCharSet("utf8mb3")
-                .UseCollation("utf8mb3_general_ci");
-
-            entity.HasIndex(e => new { e.Aname, e.Org, e.Email, e.Phone }, "OtherIndex");
-
-            entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Activitiescol).HasMaxLength(245);
-            entity.Property(e => e.Aname)
-                .HasColumnName("AName")
-                .UseCollation("latin1_swedish_ci")
-                .HasCharSet("latin1");
-            entity.Property(e => e.ContactId).HasColumnName("ContactID");
-            entity.Property(e => e.Created).HasColumnType("datetime");
-            entity.Property(e => e.CreatedBy).HasMaxLength(255);
-            entity.Property(e => e.Due).HasColumnType("datetime");
-            entity.Property(e => e.Email).HasMaxLength(245);
-            entity.Property(e => e.LeadArchieveDate)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("datetime");
+            entity.Property(e => e.LeadArchieveDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.LeadSeen).HasDefaultValueSql("'0'");
-            entity.Property(e => e.Locale)
-                .IsRequired()
-                .HasMaxLength(45);
-            entity.Property(e => e.Org).HasMaxLength(245);
-            entity.Property(e => e.Phone).HasMaxLength(245);
-            entity.Property(e => e.Po)
-                .HasMaxLength(245)
-                .HasColumnName("PO");
-            entity.Property(e => e.Profit).HasPrecision(10, 2);
-            entity.Property(e => e.Ref).HasMaxLength(245);
-            entity.Property(e => e.Source).HasMaxLength(255);
-            entity.Property(e => e.Stage).HasMaxLength(45);
             entity.Property(e => e.TimeStamp)
                 .ValueGeneratedOnAddOrUpdate()
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp");
-            entity.Property(e => e.Type).HasMaxLength(255);
-            entity.Property(e => e.Value).HasPrecision(10, 2);
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
 
         modelBuilder.Entity<LeadEvent>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("Lead_Events");
-
-            entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Charge).HasPrecision(10, 2);
-            entity.Property(e => e.Finish).HasColumnType("datetime");
-            entity.Property(e => e.Hours).HasPrecision(10, 2);
-            entity.Property(e => e.LeadEventscol)
-                .HasMaxLength(45)
-                .HasColumnName("Lead_Eventscol");
-            entity.Property(e => e.Lid).HasColumnName("LID");
-            entity.Property(e => e.Overnight).HasPrecision(10, 2);
-            entity.Property(e => e.Phase).HasMaxLength(245);
-            entity.Property(e => e.Profit).HasPrecision(10, 2);
-            entity.Property(e => e.Remarks).HasMaxLength(245);
-            entity.Property(e => e.Service).HasMaxLength(245);
-            entity.Property(e => e.Start).HasColumnType("datetime");
-            entity.Property(e => e.SubTotalCharge).HasPrecision(10, 2);
-            entity.Property(e => e.SubTotalCosts).HasPrecision(10, 2);
-            entity.Property(e => e.Subsistence).HasPrecision(10, 2);
             entity.Property(e => e.TimeStamp)
                 .ValueGeneratedOnAddOrUpdate()
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp");
-            entity.Property(e => e.Travel).HasPrecision(10, 2);
-            entity.Property(e => e.Wages).HasPrecision(10, 2);
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -1,4 +1,5 @@
 ﻿using System.Windows.Forms;
+using DevExpress.Utils;
 
 namespace DXApplication3
 {
@@ -175,7 +176,16 @@ namespace DXApplication3
             gridView1.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { colId, colAname, colType, colDue, colTimeStamp, colComplete, colContactId, colAssignedTo, colPriority, colCreated, colCreatedBy, colMemo, colValue, colStage, colExp, colPhone, colEmail, colOrg, colRef, colEmailMemo, colSource, colLeadSeen, colActivitiescol, colLocale, colPo, colProfit, colLeadArchieveDate });
             gridView1.GridControl = gridControl1;
             gridView1.Name = "gridView1";
+            gridView1.OptionsFind.AlwaysVisible = true;
+            gridView1.OptionsSelection.EnableAppearanceHotTrackedRow = DefaultBoolean.True;
+            gridView1.OptionsView.EnableAppearanceOddRow = true;
+            gridView1.OptionsView.ShowFooter = true;
+            gridView1.OptionsView.ShowIndicator = false;
+            gridView1.OptionsView.ShowVerticalLines = DefaultBoolean.False;
+            gridView1.RowHeight = 22;
+            gridView1.SortInfo.AddRange(new DevExpress.XtraGrid.Columns.GridColumnSortInfo[] { new DevExpress.XtraGrid.Columns.GridColumnSortInfo(colId, DevExpress.Data.ColumnSortOrder.Descending) });
             gridView1.CustomDrawCell += gridView1_CustomDrawCell;
+            gridView1.FocusedRowChanged += gridView1_FocusedRowChanged;
             gridView1.RowUpdated += gridView1_RowUpdated;
             // 
             // colId
